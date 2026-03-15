@@ -1,0 +1,15 @@
+.DS_Store
+pago
+
+.env
+
+*.db
+*.keys
+*.log
+
+data/wallet/.shared-ringdb/
+data/wallet/*
+!data/wallet/.gitkeep
+
+data/pago/*
+!data/pago/.gitkeep

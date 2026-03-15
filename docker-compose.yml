@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  pago:
+    build: .
+    container_name: pago_backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/pago:/app/data
+    environment:
+      - DB_PATH=/app/data/pago.db
+      - RPC_URL=http://wallet-rpc:38088/json_rpc
+      - RPC_USER=${RPC_USER:-xmr}
+      - RPC_PASS=${RPC_PASS:-xmr}
+      - PAGO_API_KEY=${PAGO_API_KEY}
+      - COINGECKO_API_KEY=${COINGECKO_API_KEY}
+      - ENABLE_MOCK_PAYMENTS=${ENABLE_MOCK_PAYMENTS:-false}
+    depends_on:
+      - wallet-rpc
+
+  wallet-rpc:
+    image: ghcr.io/sethforprivacy/simple-monero-wallet-rpc:latest
+    container_name: pago_wallet_rpc
+    restart: unless-stopped
+    volumes:
+      - ./data/wallet:/home/monero/wallet
+      - ./notify.sh:/home/monero/notify.sh
+    command:
+      - "--wallet-file=/home/monero/wallet/${WALLET_FILENAME:-merchant_wallet.keys}"
+      - "--password=${WALLET_PASSWORD:-password}"
+      - "--rpc-bind-port=38088"
+      - "--rpc-login=${RPC_USER:-xmr}:${RPC_PASS:-xmr}"
+      - "--daemon-address=${DAEMON_ADDRESS:-node.sethforprivacy.com:443}"
+      - "--tx-notify=/home/monero/notify.sh %s"
+      # - "--stagenet" Enable to test on stagenet

@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pago POS - Customer Terminal</title>
+        <script src="pago.js"></script>
+        <style>
+            @font-face {
+                font-family: "Inter Variable";
+                src: url("assets/fonts/InterVariable.ttf") format("truetype");
+                font-weight: 100 900;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: "Diosevka";
+                src: url("assets/fonts/Diosevka-Regular.ttf") format("truetype");
+                font-weight: 400;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: "Diosevka";
+                src: url("assets/fonts/Diosevka-Medium.ttf") format("truetype");
+                font-weight: 500;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: "Diosevka Extended";
+                src: url("assets/fonts/DiosevkaExtended-Regular.ttf")
+                    format("truetype");
+                font-weight: 400;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: "Diosevka Extended";
+                src: url("assets/fonts/DiosevkaExtended-Medium.ttf")
+                    format("truetype");
+                font-weight: 500;
+                font-style: normal;
+            }
+
+            body {
+                margin: 0;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #ffffff;
+                font-family: "Inter Variable";
+                letter-spacing: -5%;
+                font-feature-settings:
+                    "ss03" 1,
+                    "cv05" 1,
+                    "cv06" 1;
+            }
+
+            #idle-screen {
+                text-align: center;
+                background-color: #fff4ec;
+                cursor: pointer;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #checkout-container {
+                display: none;
+                width: 100vw;
+                height: 100vh;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #settings-gear {
+                position: fixed;
+                bottom: 15px;
+                right: 15px;
+                opacity: 0;
+                cursor: pointer;
+                z-index: 1000;
+                transition: opacity 0.1s;
+                user-select: none;
+            }
+
+            #settings-gear svg {
+                fill: #ff6f01;
+            }
+
+            #settings-gear:hover {
+                opacity: 1;
+            }
+
+            .small-text {
+                color: #fff0e4;
+                opacity: 70%;
+                font-size: 12px;
+                position: relative;
+                bottom: 5px;
+            }
+
+            .big-text {
+                position: relative;
+                bottom: 5px;
+            }
+
+            .pay-button {
+                padding: 25px 40px;
+                background-color: #ff6f01;
+                border-radius: 300px;
+                color: #fff0e4;
+                font-family: "Inter Variable";
+                font-weight: 500;
+                font-size: 18px;
+                letter-spacing: -4%;
+                transform-origin: center center;
+                transition:
+                    transform 0.1s ease-out,
+                    background-color 0.2s ease;
+                user-select: none;
+            }
+
+            .pay-button:active {
+                background-color: rgb(212, 92, 0);
+            }
+
+            .pay-button.error {
+                background-color: #d93d3d;
+                animation: shake 0.3s;
+                position: relative;
+            }
+
+            @keyframes shake {
+                0%,
+                100% {
+                    left: 0;
+                }
+
+                25% {
+                    left: -10px;
+                }
+
+                50% {
+                    left: 10px;
+                }
+
+                75% {
+                    left: -10px;
+                }
+            }
+
+            .terminal-pairing {
+                position: absolute;
+                top: 10px;
+                font-family: "Diosevka";
+                font-weight: 500;
+                letter-spacing: 0%;
+                font-size: 10px;
+                color: #944000;
+                opacity: 0.4;
+                user-select: none;
+            }
+
+            .logo {
+                position: absolute;
+                bottom: 24px;
+                width: 80px;
+                user-select: none;
+            }
+
+            .logo img {
+                width: 100%;
+                height: auto;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="idle-screen" onclick="checkActiveOrder()">
+            <div class="terminal-pairing">Paired with: Terminal-1</div>
+            <div class="pay-button">
+                <span class="small-text" id="pay-small">Tap to</span><br /><span
+                    class="big-text"
+                    id="pay-big"
+                    >Pay with Monero</span
+                >
+            </div>
+            <div class="logo">
+                <img src="assets/pago_logo.svg" alt="Pago Logo" />
+            </div>
+        </div>
+
+        <div id="checkout-container"></div>
+
+        <div id="settings-gear" onclick="changePairing(event)">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="14px"
+                viewBox="0 -960 960 960"
+                width="14px"
+                fill="#e3e3e3"
+            >
+                <path
+                    d="M433-80q-27 0-46.5-18T363-142l-9-66q-13-5-24.5-12T307-235l-62 26q-25 11-50 2t-39-32l-47-82q-14-23-8-49t27-43l53-40q-1-7-1-13.5v-27q0-6.5 1-13.5l-53-40q-21-17-27-43t8-49l47-82q14-23 39-32t50 2l62 26q11-8 23-15t24-12l9-66q4-26 23.5-44t46.5-18h94q27 0 46.5 18t23.5 44l9 66q13 5 24.5 12t22.5 15l62-26q25-11 50-2t39 32l47 82q14 23 8 49t-27 43l-53 40q1 7 1 13.5v27q0 6.5-2 13.5l53 40q21 17 27 43t-8 49l-48 82q-14 23-39 32t-50-2l-60-26q-11 8-23 15t-24 12l-9 66q-4 26-23.5 44T527-80h-94Zm49-260q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Z"
+                />
+            </svg>
+        </div>
+
+        <script>
+            let activeWidget = null;
+
+            let pairedTerminalID =
+                localStorage.getItem("pago_terminal_id") || "Terminal-1";
+
+            const idleTranslations = {
+                en: {
+                    tapTo: "Tap to",
+                    payWith: "Pay with Monero",
+                    paired: "Paired with:",
+                },
+                de: {
+                    tapTo: "Hier tippen",
+                    payWith: "Zahl mit Monero",
+                    paired: "Verbunden mit:",
+                },
+                it: {
+                    tapTo: "Tocca per",
+                    payWith: "Pagare con Monero",
+                    paired: "Abbinato a:",
+                },
+                no: {
+                    tapTo: "Trykk for å",
+                    payWith: "Betale med Monero",
+                    paired: "Koblet til:",
+                },
+            };
+
+            function applyIdleLanguage() {
+                const lang = localStorage.getItem("pago_language") || "en";
+                const t = idleTranslations[lang] || idleTranslations["en"];
+                document.getElementById("pay-small").textContent = t.tapTo;
+                document.getElementById("pay-big").textContent = t.payWith;
+                const pairingEl = document.querySelector(".terminal-pairing");
+                if (pairingEl)
+                    pairingEl.textContent = t.paired + " " + pairedTerminalID;
+            }
+            applyIdleLanguage();
+
+            function updatePairingDisplay() {
+                const lang = localStorage.getItem("pago_language") || "en";
+                const t = idleTranslations[lang] || idleTranslations["en"];
+                const displays = document.querySelectorAll(
+                    ".terminal-pairing, .terminal-pairing2",
+                );
+                displays.forEach((el) => {
+                    el.innerText = t.paired + " " + pairedTerminalID;
+                });
+            }
+            updatePairingDisplay();
+
+            function changePairing(e) {
+                e.stopPropagation();
+                const newID = prompt(
+                    "Pair this display with Terminal ID:",
+                    pairedTerminalID,
+                );
+
+                if (newID && newID.trim() !== "") {
+                    pairedTerminalID = newID.trim();
+                    localStorage.setItem("pago_terminal_id", pairedTerminalID);
+                    updatePairingDisplay();
+                }
+            }
+
+            function applyDynamicIdleScaling() {
+                const payButton = document.querySelector(".pay-button");
+                if (!payButton) return;
+
+                const baseWidth = 240;
+                const baseHeight = 110;
+
+                let scaleByWidth = (window.innerWidth * 0.8) / baseWidth;
+                let scaleByHeight = (window.innerHeight * 0.9) / baseHeight;
+
+                let scale = Math.min(scaleByWidth, scaleByHeight);
+
+                if (scale < 0.6) scale = 0.6;
+                else if (scale > 4.5) scale = 4.5;
+
+                payButton.style.transform = `scale(${scale})`;
+            }
+
+            window.addEventListener("resize", applyDynamicIdleScaling);
+            setTimeout(applyDynamicIdleScaling, 50);
+
+            async function checkActiveOrder() {
+                const idleScreen = document.getElementById("idle-screen");
+                const checkoutContainer =
+                    document.getElementById("checkout-container");
+
+                try {
+                    const response = await fetch(
+                        `/api/terminal/active?terminal_id=${pairedTerminalID}`,
+                    );
+
+                    if (response.status === 404) {
+                        const payBtn = document.querySelector(".pay-button");
+                        if (payBtn) {
+                            payBtn.classList.add("error");
+                            setTimeout(() => {
+                                payBtn.classList.remove("error");
+                            }, 300);
+                        }
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    idleScreen.style.display = "none";
+                    checkoutContainer.style.display = "flex";
+
+                    activeWidget = Pago.mount({
+                        container: "#checkout-container",
+                        invoiceId: data.invoice_public_id,
+                        enableTipping: true,
+                        language: localStorage.getItem("pago_language") || "en",
+                        onSuccess: function () {
+                            setTimeout(() => {
+                                if (activeWidget) {
+                                    activeWidget.destroy();
+                                    activeWidget = null;
+                                }
+                                checkoutContainer.style.display = "none";
+                                idleScreen.style.display = "flex";
+                            }, 10000);
+                        },
+                    });
+                } catch (err) {
+                    console.error("Error fetching active order:", err);
+                    alert("Connection error. Please try again.");
+                }
+            }
+        </script>
+    </body>
+</html>

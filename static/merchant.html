@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pago POS - Cashier Register</title>
+        <style>
+            @font-face {
+                font-family: "Inter Variable";
+                src: url("assets/fonts/InterVariable.ttf") format("truetype");
+                font-weight: 100 900;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: "Diosevka";
+                src: url("assets/fonts/Diosevka-Regular.ttf") format("truetype");
+                font-weight: 400;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: "Diosevka";
+                src: url("assets/fonts/Diosevka-Medium.ttf") format("truetype");
+                font-weight: 500;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: "Diosevka Extended";
+                src: url("assets/fonts/DiosevkaExtended-Regular.ttf")
+                    format("truetype");
+                font-weight: 400;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: "Diosevka Extended";
+                src: url("assets/fonts/DiosevkaExtended-Medium.ttf")
+                    format("truetype");
+                font-weight: 500;
+                font-style: normal;
+            }
+
+            :root {
+                --text: #505050;
+                --subtext: #bababa;
+            }
+
+            body {
+                margin: 0;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #ffffff;
+                font-family: "Inter Variable", sans-serif;
+                font-feature-settings:
+                    "ss03" 1,
+                    "cv05" 1,
+                    "cv06" 1;
+                letter-spacing: -5%;
+            }
+
+            .outer_container {
+                width: 230px;
+                height: 408px;
+                border-radius: 23px;
+                background: #313131;
+                transform-origin: center center;
+                transition: transform 0.1s ease-out;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                align-items: center;
+                position: relative;
+            }
+
+            .inner_container_header {
+                width: 175px;
+                height: 27px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 1px;
+            }
+
+            .inner_container_header_element {
+                font-family: "Diosevka", monospace;
+                font-weight: 400;
+                font-size: 8px;
+                color: #e6e6e6;
+                display: flex;
+                align-items: center;
+                gap: 3px;
+                letter-spacing: 0px;
+            }
+
+            .settings_gear {
+                text-decoration: none;
+                cursor: pointer;
+                color: #d1d1d1;
+                transition: color 0.1s;
+                margin-left: 2px;
+                opacity: 0.5;
+            }
+
+            .settings_gear:hover {
+                color: #505050;
+            }
+
+            .inner_container {
+                width: 224px;
+                height: 381px;
+                border-radius: 20px;
+                background-color: #f7f7f7;
+                margin-bottom: 3px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding-top: 25px;
+                box-sizing: border-box;
+            }
+
+            .merchant_logo_text {
+                width: 176px;
+                font-family: "Inter Variable", sans-serif;
+                font-size: 15px;
+                font-weight: 500;
+                color: var(--text);
+                letter-spacing: -5%;
+                margin-bottom: 20px;
+            }
+
+            .input_group {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 10px;
+            }
+
+            .merchant_label {
+                font-size: 8px;
+                font-weight: 400;
+                color: var(--text);
+                margin-bottom: 3px;
+                width: 176px;
+                padding-left: 2px;
+            }
+
+            .sublabel {
+                color: var(--subtext);
+                font-weight: 400;
+                font-style: italic;
+            }
+
+            .merchant_input {
+                width: 176px;
+                height: 32px;
+                padding: 0;
+                margin: 0;
+                border: none;
+                border-radius: 10px;
+                text-indent: 10px;
+                font-family: "Inter Variable", sans-serif;
+                font-size: 10px;
+                font-weight: 400;
+                letter-spacing: -5%;
+                color: var(--text);
+                box-sizing: border-box;
+                background: white;
+            }
+
+            .merchant_input:focus {
+                outline: none;
+                box-shadow: 0px 0px 2px 0px #00000010;
+            }
+
+            .merchant_input::placeholder {
+                color: #d5d5d5;
+                font-weight: 400;
+            }
+
+            .checkbox_group {
+                display: flex;
+                align-items: center;
+                width: 176px;
+                gap: 6px;
+                margin-bottom: 15px;
+                margin-top: 5px;
+                padding-left: 2px;
+            }
+
+            .checkbox_label {
+                font-size: 10px;
+                font-weight: 400;
+                color: var(--text);
+                cursor: pointer;
+            }
+
+            .custom_checkbox {
+                width: 14px;
+                height: 14px;
+                cursor: pointer;
+                accent-color: #313131;
+                margin: 0;
+            }
+
+            .tip_button {
+                width: 176px;
+                height: 66px;
+                border-radius: 230px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 14px;
+                font-weight: 500;
+                background-color: #84d666;
+                color: #0f5c0e;
+                border: 0.5px solid #66b44f;
+                cursor: pointer;
+                margin-top: 35px;
+                transition:
+                    transform 0.1s,
+                    filter 0.1s;
+                user-select: none;
+            }
+
+            .tip_button:hover:not(:disabled) {
+                filter: brightness(1.1);
+            }
+
+            .tip_button:active:not(:disabled) {
+                transform: translateY(1px);
+            }
+
+            .tip_button:disabled {
+                background-color: #a0a0a0;
+                border-color: #909090;
+                color: #000000;
+                cursor: not-allowed;
+                box-shadow: none;
+            }
+
+            .status_msg {
+                font-size: 8px;
+                font-weight: 500;
+                color: #3e713d8f;
+                margin-top: -85px;
+                text-align: center;
+                min-height: 12px;
+                letter-spacing: -3%;
+                font-family: "Diosevka Extended";
+            }
+
+            .debug_tools {
+                margin-top: auto;
+                margin-bottom: 25px;
+                width: 176px;
+                border-top: 0.5px dashed #e4e4e4;
+                padding-top: 15px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .mock_button {
+                width: 176px;
+                height: 28px;
+                border-radius: 8px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-family: "Inter Variable", sans-serif;
+                font-size: 9px;
+                font-weight: 600;
+                letter-spacing: -5%;
+                background-color: #c1e0c1;
+                color: #1c8d1a;
+                border: 0.5px solid #a2d6a1;
+                cursor: pointer;
+            }
+
+            .mock_button:hover:not(:disabled) {
+                filter: brightness(0.95);
+            }
+
+            .mock_button:disabled {
+                background-color: transparent;
+                color: #c1c1c1;
+                border: 0.5px solid #ebebeb;
+                cursor: not-allowed;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.2);
+                backdrop-filter: blur(30px) brightness(3.5);
+                z-index: 50;
+            }
+
+            .modal {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 25px;
+                border-radius: 23px;
+                z-index: 100;
+                width: 230px;
+                height: fit-content;
+                max-height: 408px;
+                box-sizing: border-box;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                overflow-y: auto;
+                scrollbar-width: none;
+            }
+
+            .modal::-webkit-scrollbar {
+                display: none;
+            }
+
+            .modal h3 {
+                margin-top: 0;
+                color: var(--text);
+                text-align: center;
+                margin-bottom: 15px;
+                font-size: 15px;
+                font-weight: 500;
+            }
+
+            .modal label {
+                font-size: 7px;
+                font-weight: 500;
+                color: var(--text);
+                display: block;
+                margin-bottom: 3px;
+                padding-left: 2px;
+            }
+
+            .modal input,
+            .modal select {
+                width: 100%;
+                height: 30px;
+                border: 0.5px solid #f3f3f3;
+                border-radius: 10px;
+                padding: 0 10px;
+                font-family: "Inter Variable", sans-serif;
+                font-size: 8px;
+                letter-spacing: -5%;
+                box-sizing: border-box;
+                margin-bottom: 8px;
+                color: var(--text);
+                background: white;
+            }
+
+            .modal input:focus,
+            .modal select:focus {
+                outline: none;
+                border-color: #d1d1d1;
+            }
+
+            .modal button {
+                width: 100%;
+                height: 34px;
+                border-radius: 50px;
+                border: none;
+                font-family: "Inter Variable", sans-serif;
+                font-size: 9px;
+                font-weight: 400;
+                letter-spacing: -5%;
+                cursor: pointer;
+            }
+
+            .btn-save {
+                background: #383838;
+                color: white;
+                margin-bottom: 7px;
+            }
+
+            .btn-cancel {
+                background: #f0f0f0;
+                color: #666;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="outer_container">
+            <div
+                class="inner_container_header"
+                style="justify-content: center; position: relative"
+            >
+                <div
+                    class="inner_container_header_element"
+                    id="display-terminal-id"
+                >
+                    ID: Terminal-1
+                </div>
+                <a
+                    href="#"
+                    onclick="openSettings(event)"
+                    class="settings_gear"
+                    title="Settings"
+                    style="
+                        position: absolute;
+                        right: -12px;
+                        top: 8px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transform: scale(0.75);
+                    "
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="12px"
+                        viewBox="0 -960 960 960"
+                        width="12px"
+                        fill="currentColor"
+                    >
+                        <path
+                            d="M433-80q-27 0-46.5-18T363-142l-9-66q-13-5-24.5-12T307-235l-62 26q-25 11-50 2t-39-32l-47-82q-14-23-8-49t27-43l53-40q-1-7-1-13.5v-27q0-6.5 1-13.5l-53-40q-21-17-27-43t8-49l47-82q14-23 39-32t50 2l62 26q11-8 23-15t24-12l9-66q4-26 23.5-44t46.5-18h94q27 0 46.5 18t23.5 44l9 66q13 5 24.5 12t22.5 15l62-26q25-11 50-2t39 32l47 82q14 23 8 49t-27 43l-53 40q1 7 1 13.5v27q0 6.5-2 13.5l53 40q21 17 27 43t-8 49l-48 82q-14 23-39 32t-50-2l-60-26q-11 8-23 15t-24 12l-9 66q-4 26-23.5 44T527-80h-94Zm49-260q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Z"
+                        />
+                    </svg>
+                </a>
+            </div>
+
+            <div class="inner_container">
+                <div class="merchant_logo_text">New Invoice</div>
+
+                <div class="input_group">
+                    <label class="merchant_label"
+                        >Amount <span class="sublabel"> (Required)</span></label
+                    >
+                    <input
+                        type="number"
+                        id="fiat-amount"
+                        class="merchant_input"
+                        step="0.01"
+                        placeholder="e.g. 5.50"
+                        required
+                    />
+                </div>
+                <div class="input_group">
+                    <label class="merchant_label"
+                        >Order ID / Identifier
+                        <span class="sublabel"> (Optional)</span></label
+                    >
+                    <input
+                        type="text"
+                        id="order-id"
+                        class="merchant_input"
+                        placeholder="e.g. Table 1"
+                    />
+                </div>
+                <div class="input_group">
+                    <label class="merchant_label"
+                        >Description
+                        <span class="sublabel"> (Optional)</span></label
+                    >
+                    <input
+                        type="text"
+                        id="order-desc"
+                        class="merchant_input"
+                        placeholder="e.g. 2x Coffee"
+                    />
+                </div>
+
+                <div class="checkbox_group">
+                    <input
+                        type="checkbox"
+                        id="enable-tip"
+                        class="custom_checkbox"
+                        checked
+                    />
+                    <label class="checkbox_label" for="enable-tip"
+                        >Prompt customer for tip?</label
+                    >
+                </div>
+
+                <button
+                    id="charge-btn"
+                    class="tip_button"
+                    onclick="sendToTerminal()"
+                >
+                    Create Invoice
+                </button>
+                <div id="status-msg" class="status_msg"></div>
+            </div>
+        </div>
+
+        <div
+            id="settings-overlay"
+            class="overlay"
+            onclick="closeSettings()"
+        ></div>
+        <div id="settings-modal" class="modal">
+            <h3>Terminal Settings</h3>
+
+            <label>Device Name (Terminal ID)</label>
+            <input
+                type="text"
+                id="setting-terminal"
+                placeholder="e.g. Terminal-1"
+            />
+
+            <label>Default Fiat Currency</label>
+            <select id="setting-currency"></select>
+
+            <label>Required Confirmations</label>
+            <select id="setting-confs">
+                <option value="0">0 (Instant - Mempool only)</option>
+                <option value="1">1 Confirmation (~2 mins)</option>
+                <option value="2">2 Confirmations (~4 mins)</option>
+                <option value="3">3 Confirmations (~6 mins)</option>
+                <option value="4">4 Confirmations (~8 mins)</option>
+                <option value="5">5 Confirmations (~10 mins)</option>
+                <option value="6">6 Confirmations (~12 mins)</option>
+                <option value="7">7 Confirmations (~14 mins)</option>
+                <option value="8">8 Confirmations (~16 mins)</option>
+                <option value="9">9 Confirmations (~18 mins)</option>
+                <option value="10">10 Confirmations (~20 mins)</option>
+            </select>
+
+            <label>API Key</label>
+            <input
+                type="password"
+                id="setting-apikey"
+                placeholder="Your PAGO_API_KEY"
+            />
+
+            <label>Widget Language</label>
+            <select id="setting-language">
+                <option value="en">🇬🇧 English</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="no">🇳🇴 Norsk</option>
+            </select>
+
+            <button class="btn-save" onclick="saveSettings()">
+                Save Configuration
+            </button>
+            <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
+
+                <button
+                    id="mock-btn"
+                    class="mock_button"
+                    style="
+                        display: none;
+                        width: 100%;
+                        height: 34px;
+                        font-size: 9px;
+                        margin-top: 7px;
+                    "
+                    onclick="triggerMockPayment()"
+                    disabled
+                >
+                    Simulate Payment
+                </button>
+            </div>
+        </div>
+
+        <script>
+            let currentActiveInvoice = null;
+            let statusPollInterval = null;
+            let lastKnownStatus = null;
+
+            const statusColors = {
+                pending: "#9e9e9e",
+                in_mempool: "#2196f3",
+                confirming: "#ff9800",
+                confirmed: "#3e713d",
+                expired: "#d93d3d",
+                failed: "#d93d3d",
+                underpaid: "#ff9800",
+            };
+
+            const statusLabels = {
+                pending: "Pending",
+                in_mempool: "In Mempool",
+                confirming: "Confirming",
+                confirmed: "Confirmed",
+                expired: "Expired",
+                failed: "Failed",
+                underpaid: "Underpaid",
+            };
+
+            function startStatusPolling(publicId) {
+                if (statusPollInterval) clearInterval(statusPollInterval);
+                pollInvoiceStatus(publicId);
+                statusPollInterval = setInterval(
+                    () => pollInvoiceStatus(publicId),
+                    3000,
+                );
+            }
+
+            async function pollInvoiceStatus(publicId) {
+                try {
+                    const response = await fetch(
+                        `/api/invoice/status?public_id=${publicId}`,
+                    );
+                    if (!response.ok) return;
+                    const data = await response.json();
+                    const statusMsg = document.getElementById("status-msg");
+                    const label = statusLabels[data.status] || data.status;
+                    const color = statusColors[data.status] || "#9e9e9e";
+                    const newText = `${publicId}: ${label}`;
+
+                    statusMsg.style.color = color;
+                    statusMsg.innerText = `${publicId}: ${label}`;
+
+                    if (statusMsg.innerText !== newText) {
+                        statusMsg.style.color = color;
+                        statusMsg.innerText = newText;
+                    }
+
+                    lastKnownStatus = data.status;
+
+                    if (
+                        ["confirmed", "expired", "failed"].includes(data.status)
+                    ) {
+                        clearInterval(statusPollInterval);
+                        statusPollInterval = null;
+                    }
+                } catch (err) {
+                    console.error("Status poll error:", err);
+                }
+            }
+
+            const supportedCurrencies = {
+                AED: "United Arab Emirates Dirham",
+                ARS: "Argentine Peso",
+                AUD: "Australian Dollar",
+                BDT: "Bangladeshi Taka",
+                BHD: "Bahraini Dinar",
+                BMD: "Bermudian Dollar",
+                BRL: "Brazilian Real",
+                CAD: "Canadian Dollar",
+                CHF: "Swiss Franc",
+                CLP: "Chilean Peso",
+                CNY: "Chinese Yuan",
+                CZK: "Czech Koruna",
+                DKK: "Danish Krone",
+                EUR: "Euro",
+                GBP: "British Pound",
+                GEL: "Georgian Lari",
+                HKD: "Hong Kong Dollar",
+                HUF: "Hungarian Forint",
+                IDR: "Indonesian Rupiah",
+                ILS: "Israeli New Shekel",
+                INR: "Indian Rupee",
+                JPY: "Japanese Yen",
+                KRW: "South Korean Won",
+                KWD: "Kuwaiti Dinar",
+                LKR: "Sri Lankan Rupee",
+                MMK: "Myanmar Kyat",
+                MXN: "Mexican Peso",
+                MYR: "Malaysian Ringgit",
+                NGN: "Nigerian Naira",
+                NOK: "Norwegian Krone",
+                NZD: "New Zealand Dollar",
+                PHP: "Philippine Peso",
+                PKR: "Pakistani Rupee",
+                PLN: "Polish Zloty",
+                RUB: "Russian Ruble",
+                SAR: "Saudi Riyal",
+                SEK: "Swedish Krona",
+                SGD: "Singapore Dollar",
+                THB: "Thai Baht",
+                TRY: "Turkish Lira",
+                TWD: "New Taiwan Dollar",
+                UAH: "Ukrainian Hryvnia",
+                USD: "US Dollar",
+                VEF: "Venezuelan Bolívar",
+                VND: "Vietnamese Dong",
+                ZAR: "South African Rand",
+            };
+
+            function populateCurrencyDropdown() {
+                const select = document.getElementById("setting-currency");
+                select.innerHTML = "";
+                Object.keys(supportedCurrencies).forEach((currencyCode) => {
+                    const currencyName = supportedCurrencies[currencyCode];
+                    const option = document.createElement("option");
+                    option.value = currencyCode;
+                    option.text = `${currencyCode} - ${currencyName}`;
+                    select.appendChild(option);
+                });
+            }
+            populateCurrencyDropdown();
+
+            async function checkConfig() {
+                try {
+                    const response = await fetch("/api/config");
+                    const config = await response.json();
+
+                    if (config.mock_payments_enabled) {
+                        document.getElementById("mock-btn").style.display =
+                            "flex";
+                    }
+                } catch (error) {
+                    console.error("Failed to load config", error);
+                }
+            }
+
+            checkConfig();
+
+            let terminalID =
+                localStorage.getItem("pago_terminal_id") || "Terminal-1";
+            let defaultCurrency =
+                localStorage.getItem("pago_currency") || "USD";
+            let defaultConfs = localStorage.getItem("pago_confs") || "1";
+            let pagoApiKey = localStorage.getItem("pago_api_key") || "";
+            let widgetLanguage = localStorage.getItem("pago_language") || "en";
+
+            document.getElementById("display-terminal-id").innerText =
+                "ID: " + terminalID;
+
+            function openSettings(e) {
+                e.preventDefault();
+                document.getElementById("setting-terminal").value = terminalID;
+                document.getElementById("setting-currency").value =
+                    defaultCurrency;
+                document.getElementById("setting-confs").value = defaultConfs;
+                document.getElementById("setting-apikey").value = pagoApiKey;
+                document.getElementById("setting-language").value =
+                    widgetLanguage;
+
+                document.getElementById("settings-overlay").style.display =
+                    "block";
+                document.getElementById("settings-modal").style.display =
+                    "block";
+            }
+
+            function closeSettings() {
+                document.getElementById("settings-overlay").style.display =
+                    "none";
+                document.getElementById("settings-modal").style.display =
+                    "none";
+            }
+
+            function saveSettings() {
+                const newID = document
+                    .getElementById("setting-terminal")
+                    .value.trim();
+                if (newID) terminalID = newID;
+                defaultCurrency =
+                    document.getElementById("setting-currency").value;
+                defaultConfs = document.getElementById("setting-confs").value;
+                pagoApiKey = document
+                    .getElementById("setting-apikey")
+                    .value.trim();
+                widgetLanguage =
+                    document.getElementById("setting-language").value;
+
+                localStorage.setItem("pago_terminal_id", terminalID);
+                localStorage.setItem("pago_currency", defaultCurrency);
+                localStorage.setItem("pago_confs", defaultConfs);
+                localStorage.setItem("pago_api_key", pagoApiKey);
+                localStorage.setItem("pago_language", widgetLanguage);
+
+                document.getElementById("display-terminal-id").innerText =
+                    "ID: " + terminalID;
+                closeSettings();
+            }
+
+            async function sendToTerminal() {
+                const btn = document.getElementById("charge-btn");
+                const statusMsg = document.getElementById("status-msg");
+                const mockBtn = document.getElementById("mock-btn");
+
+                const amount = parseFloat(
+                    document.getElementById("fiat-amount").value,
+                );
+                const orderId = document.getElementById("order-id").value;
+                const desc = document.getElementById("order-desc").value;
+                const tipEnabled =
+                    document.getElementById("enable-tip").checked;
+
+                if (!amount || amount <= 0)
+                    return alert("Enter a valid amount");
+
+                if (
+                    currentActiveInvoice &&
+                    lastKnownStatus &&
+                    !["confirmed", "expired", "failed"].includes(
+                        lastKnownStatus,
+                    )
+                ) {
+                    if (
+                        !confirm(
+                            `Invoice ${currentActiveInvoice} is still ${lastKnownStatus}. Create a new one anyway?`,
+                        )
+                    ) {
+                        return;
+                    }
+                }
+
+                btn.innerText = "Sending...";
+                btn.disabled = true;
+                mockBtn.disabled = true;
+
+                try {
+                    const response = await fetch("/api/create-invoice", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-API-Key": pagoApiKey,
+                        },
+                        body: JSON.stringify({
+                            fiat_amount: amount,
+                            description: desc,
+                            fiat_currency: defaultCurrency,
+                            required_confs: parseInt(defaultConfs),
+                            order_id: orderId,
+                            tip_enabled: tipEnabled,
+                            terminal_id: terminalID,
+                        }),
+                    });
+
+                    if (!response.ok)
+                        throw new Error("Failed to create invoice");
+
+                    const data = await response.json();
+                    currentActiveInvoice = data.invoice_public_id;
+                    mockBtn.disabled = false;
+
+                    statusMsg.style.color = "#9e9e9e";
+                    statusMsg.innerText = `${data.invoice_public_id}: ⏳ Pending`;
+                    startStatusPolling(data.invoice_public_id);
+                    document.getElementById("fiat-amount").value = "";
+                    document.getElementById("order-id").value = "";
+                    document.getElementById("order-desc").value = "";
+                } catch (err) {
+                    alert("Error: " + err.message);
+                } finally {
+                    btn.innerText = "Create Invoice";
+                    btn.disabled = false;
+                }
+            }
+
+            async function triggerMockPayment() {
+                if (!currentActiveInvoice) return;
+
+                const mockBtn = document.getElementById("mock-btn");
+                mockBtn.disabled = true;
+
+                try {
+                    const response = await fetch(
+                        `/api/mock-payment?public_id=${currentActiveInvoice}`,
+                        { method: "POST" },
+                    );
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(errText);
+                    }
+                    console.log("Mock payment sent for:", currentActiveInvoice);
+                } catch (err) {
+                    alert("Mock Payment Error: " + err.message);
+                    mockBtn.disabled = false;
+                }
+            }
+
+            function applyDynamicScaling() {
+                const outerContainer =
+                    document.querySelector(".outer_container");
+                const modal = document.querySelector(".modal");
+                if (!outerContainer) return;
+
+                const baseWidth = 230;
+                const baseHeight = 408;
+
+                let scaleByHeight = (window.innerHeight * 0.85) / baseHeight;
+                let scaleByWidth = (window.innerWidth * 0.95) / baseWidth;
+
+                let scale = Math.min(scaleByHeight, scaleByWidth);
+
+                if (scale > 2.5) scale = 2.5;
+                else if (scale < 0.6) scale = 0.6;
+
+                outerContainer.style.transform = `scale(${scale})`;
+
+                if (modal) {
+                    modal.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                }
+            }
+
+            window.addEventListener("resize", applyDynamicScaling);
+            applyDynamicScaling();
+        </script>
+    </body>
+</html>
